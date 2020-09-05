@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="之前做了一个人脸识别的项目，需要实现一个api，供其他终端设备(如树莓派，手机）访问。当终端设备把带有人脸的图片，通过api传给服务端后，返回人脸识别的结果。好了，下面开始介绍。 一，背景知识本文主要参考的文章，人脸识别简介-李理和人脸检测MTCNN和人脸识别FaceNet，大家可以点进去好好阅读。我再简要地说下人脸识别的算法原理。 利用深度学习来人脸识别，是目前的主流。以Google的FaceN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Flask，Keras部署人脸识别服务API">
+<meta property="og:url" content="http://example.com/2020/09/05/%E5%9F%BA%E4%BA%8EFlask%EF%BC%8CKeras%E9%83%A8%E7%BD%B2%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB%E6%9C%8D%E5%8A%A1API/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="之前做了一个人脸识别的项目，需要实现一个api，供其他终端设备(如树莓派，手机）访问。当终端设备把带有人脸的图片，通过api传给服务端后，返回人脸识别的结果。好了，下面开始介绍。 一，背景知识本文主要参考的文章，人脸识别简介-李理和人脸检测MTCNN和人脸识别FaceNet，大家可以点进去好好阅读。我再简要地说下人脸识别的算法原理。 利用深度学习来人脸识别，是目前的主流。以Google的FaceN">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/14955960-9f6e5a59af2fd3e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="article:published_time" content="2020-09-05T01:59:05.000Z">
+<meta property="article:modified_time" content="2020-09-05T08:12:41.395Z">
+<meta property="article:author" content="jiaobendaye">
+<meta property="article:tag" content="flask">
+<meta property="article:tag" content="keras">
+<meta property="article:tag" content="face-recognition">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/14955960-9f6e5a59af2fd3e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+<link rel="canonical" href="http://example.com/2020/09/05/%E5%9F%BA%E4%BA%8EFlask%EF%BC%8CKeras%E9%83%A8%E7%BD%B2%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB%E6%9C%8D%E5%8A%A1API/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于Flask，Keras部署人脸识别服务API | 我的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">我的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/09/05/%E5%9F%BA%E4%BA%8EFlask%EF%BC%8CKeras%E9%83%A8%E7%BD%B2%E4%BA%BA%E8%84%B8%E8%AF%86%E5%88%AB%E6%9C%8D%E5%8A%A1API/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="jiaobendaye">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于Flask，Keras部署人脸识别服务API
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-05 09:59:05 / 修改时间：16:12:41" itemprop="dateCreated datePublished" datetime="2020-09-05T09:59:05+08:00">2020-09-05</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>之前做了一个人脸识别的项目，需要实现一个api，供其他终端设备(如树莓派，手机）访问。当终端设备把带有人脸的图片，通过api传给服务端后，返回人脸识别的结果。好了，下面开始介绍。</p>
+<h1 id="一，背景知识"><a href="#一，背景知识" class="headerlink" title="一，背景知识"></a>一，背景知识</h1><p>本文主要参考的文章，<a target="_blank" rel="noopener" href="http://fancyerii.github.io/books/face-recognition/">人脸识别简介-李理</a>和<a target="_blank" rel="noopener" href="https://www.cnblogs.com/zyly/p/9703614.html">人脸检测MTCNN和人脸识别FaceNet</a>，大家可以点进去好好阅读。我再简要地说下人脸识别的算法原理。</p>
+<p>利用深度学习来人脸识别，是目前的主流。以Google的FaceNet为例，其大致原理是，把检测（detected)到并对齐（aligned)后的人脸输入到神经网络，然后得到128维的嵌入向量（Embedding Vector），代表这一张人脸图片。通过比较两个向量之间的距离，来判断两张人脸是同一个人的可能性。距离越小，则越可能是同一个人。</p>
+<p>由于本文主要讲怎么通过Flask部署api，所以具体的模型训练，请参考上面给的链接，以及FaceNet的论文。</p>
+<h1 id="二，代码解释"><a href="#二，代码解释" class="headerlink" title="二，代码解释"></a>二，代码解释</h1><blockquote>
+<p>完整代码<a target="_blank" rel="noopener" href="https://github.com/jiaobendaye/flask_face_recognition">链接</a>，下面我挑一些代码简单讲一下。</p>
+</blockquote>
+<h4 id="1）-主要的逻辑代码"><a href="#1）-主要的逻辑代码" class="headerlink" title="1） 主要的逻辑代码"></a>1） 主要的逻辑代码</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route(&#x27;/recognition&#x27;, methods=[&#x27;POST&#x27;])</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">recognition</span>():</span></span><br><span class="line">    response = &#123;<span class="string">&#x27;success&#x27;</span>: <span class="literal">False</span>, <span class="string">&#x27;prediction&#x27;</span>: <span class="string">&#x27;unk&#x27;</span>, <span class="string">&#x27;debug&#x27;</span>: <span class="string">&#x27;error&#x27;</span>&#125;</span><br><span class="line">    </span><br><span class="line">    received_image = <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        <span class="keyword">if</span> request.files.get(<span class="string">&#x27;image&#x27;</span>): <span class="comment">#图像文件</span></span><br><span class="line">            image = request.files[<span class="string">&#x27;image&#x27;</span>].read()</span><br><span class="line">            received_image = <span class="literal">True</span></span><br><span class="line">            response[<span class="string">&#x27;debug&#x27;</span>] = <span class="string">&#x27;get image&#x27;</span></span><br><span class="line">            print(<span class="string">&#x27;receive file&#x27;</span>)</span><br><span class="line">        <span class="keyword">elif</span> request.get_json(): <span class="comment">#base64 编码的图像文件</span></span><br><span class="line">            encoded_image = request.get_json()[<span class="string">&#x27;image&#x27;</span>]</span><br><span class="line"></span><br><span class="line">            image = base64.b64decode(encoded_image)</span><br><span class="line">            received_image = <span class="literal">True</span></span><br><span class="line">            response[<span class="string">&#x27;debug&#x27;</span>] = <span class="string">&#x27;get json&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> received_image:</span><br><span class="line">            image = np.array(Image.open(BytesIO(image)))</span><br><span class="line">            result =  _recognition(image)</span><br><span class="line">            <span class="keyword">if</span> result <span class="keyword">is</span> <span class="keyword">not</span> <span class="string">&#x27;unk&#x27;</span>:</span><br><span class="line">                response[<span class="string">&#x27;prediction&#x27;</span>] = result</span><br><span class="line">            response[<span class="string">&#x27;success&#x27;</span>] = <span class="literal">True</span></span><br><span class="line">            response[<span class="string">&#x27;debug&#x27;</span>] = <span class="string">&#x27;predicted&#x27;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        response[<span class="string">&#x27;debug&#x27;</span>] = <span class="string">&#x27;No Post&#x27;</span></span><br><span class="line">    <span class="comment">#print(response)</span></span><br><span class="line">    <span class="keyword">return</span> jsonify(response)</span><br></pre></td></tr></table></figure>
+
+<p>上面就是注册的路由，思路就是，通过POST接收到图像后，调用<code>_recogntion</code>，查看是否是数据库中的某个人。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_recognition</span>(<span class="params">img</span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    return: result person name or unk</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment">#preprocess</span></span><br><span class="line">    img = align_image(img)</span><br><span class="line">    <span class="keyword">if</span> img <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="comment"># 数据规范化</span></span><br><span class="line">        img = (img / <span class="number">255.</span>).astype(np.float32)</span><br><span class="line">    <span class="keyword">else</span>: <span class="keyword">return</span> <span class="string">&#x27;unk&#x27;</span></span><br><span class="line">    <span class="comment"># embedding</span></span><br><span class="line">    <span class="keyword">global</span> session</span><br><span class="line">    <span class="keyword">global</span> graph</span><br><span class="line">    <span class="keyword">with</span> graph.as_default():</span><br><span class="line">        set_session(session)</span><br><span class="line">        embedding = nn4_small2.predict(np.expand_dims(img, axis=<span class="number">0</span>))</span><br><span class="line">    all_distance = [distance(embedding, emb) <span class="keyword">for</span> emb <span class="keyword">in</span> embedded]</span><br><span class="line">    min_dis =min(all_distance)</span><br><span class="line">    print(min_dis)</span><br><span class="line">    <span class="keyword">if</span> min_dis &gt; THRESHOLD:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;unk&#x27;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        min_index = np.argmin(all_distance)</span><br><span class="line">        <span class="keyword">return</span> targets[min_index]</span><br></pre></td></tr></table></figure>
+
+<p><code>_recognition</code>的逻辑是:</p>
+<ol>
+<li><p>先预处理图片（检测人脸和对齐），如果未检测到人脸，直接返回<code>unk</code>。对齐后的人脸图片大小为96 * 96  * 3</p>
+</li>
+<li><p>然后通过<code>nn4_small2.predict()</code>将对齐后的人脸转为128维的嵌入向量。</p>
+</li>
+<li><p>分类。这里只是简单地计算该向量与数据库中所有向量的距离，然后找到距离最小的那个，根据最小距离与阈值的大小来决定，是否是同一个人。这种方法只适合数据库很小（人很少）的情况，当人数特别多时，不可能让你每次都计算所有的距离。这时就需要用<code>svm</code>来分类，具体怎么解决，我们下一节再讲。</p>
+</li>
+</ol>
+<h4 id="2）阈值"><a href="#2）阈值" class="headerlink" title="2）阈值"></a>2）阈值</h4><p>前面提到，当最小距离大于阈值时，我们可以说不认识这个人。那么阈值是多少合理呢？这跟你的数据库中人脸数据的具体分布有关系。</p>
+<p>我这里在网上找了一些明星图片作为示例数据，放在了<code>./images/</code>下。通过运行<code>threshold.py</code>会打印出不同阈值的f1值和准确率，如下图所示。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">╰─$ tree  ./images                                 </span><br><span class="line">./images</span><br><span class="line">├── fanBingBing</span><br><span class="line">│   ├── fanbingbing001.jpeg</span><br><span class="line">│   ├── fanbingbing002.jpeg</span><br><span class="line">│   └── fanbingbing003.jpeg</span><br><span class="line">├── huangXiaoMing</span><br><span class="line">│   ├── huangxiaoming001.jpeg</span><br><span class="line">...</span><br><span class="line">├── wangLiHong</span><br><span class="line">│   ├── wanglihong001.jpeg</span><br><span class="line">│   ├── wanglihong002.jpeg</span><br><span class="line">│   └── wanglihong003.jpeg</span><br><span class="line">└── xuWei</span><br><span class="line">    ├── xuwei001.jpeg</span><br><span class="line">    ├── xuwei002.jpeg</span><br><span class="line">    └── xuwei003.jpeg</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/14955960-9f6e5a59af2fd3e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="threshold.png"><br>可以看到，当阈值为0.3时，能达到94%的准确率。如何能使速度更快，预测更准呢？这是下面要讲的。</p>
+<h1 id="三，扩展"><a href="#三，扩展" class="headerlink" title="三，扩展"></a>三，扩展</h1><h4 id="1-速度更快，svm"><a href="#1-速度更快，svm" class="headerlink" title="1)  速度更快，svm"></a>1)  速度更快，svm</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> LinearSVC</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> LabelEncoder</span><br><span class="line"></span><br><span class="line">encoder = LabelEncoder()</span><br><span class="line">encoder.fit(targets)</span><br><span class="line">y = encoder.transform(targets)</span><br><span class="line"></span><br><span class="line">svc = LinearSVC()</span><br><span class="line">svc.fit(embedded, y)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_recognition_svm</span>(<span class="params">img</span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    return: result person name or unk</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment">#preprocess</span></span><br><span class="line">    img = align_image(img)</span><br><span class="line">    <span class="keyword">if</span> img <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    <span class="comment"># 数据规范化</span></span><br><span class="line">        img = (img / <span class="number">255.</span>).astype(np.float32)</span><br><span class="line">    <span class="keyword">else</span>: <span class="keyword">return</span> <span class="string">&#x27;unk&#x27;</span></span><br><span class="line">    <span class="comment"># embedding</span></span><br><span class="line">    <span class="keyword">global</span> session</span><br><span class="line">    <span class="keyword">global</span> graph</span><br><span class="line">    <span class="keyword">with</span> graph.as_default():</span><br><span class="line">        set_session(session)</span><br><span class="line">        embedding = nn4_small2.predict(np.expand_dims(img, axis=<span class="number">0</span>))</span><br><span class="line">    prediction = svc.predict(embedding)</span><br><span class="line">    identity = encoder.inverse_transform(prediction)[<span class="number">0</span>]</span><br><span class="line">    <span class="comment"># enbedded_identity ,is the embeddings in the dataset which name is identity</span></span><br><span class="line">    embedded_identity = embedded[np.where(targets == identity)[<span class="number">0</span>]]</span><br><span class="line">    all_distance = [distance(embedding, emb) <span class="keyword">for</span> emb <span class="keyword">in</span> embedded_identity]</span><br><span class="line">    min_dis = min(all_distance)</span><br><span class="line">    <span class="comment"># print(min_dis)</span></span><br><span class="line">    <span class="keyword">if</span> min_dis &gt; THRESHOLD:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;unk&#x27;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> identity</span><br></pre></td></tr></table></figure>
+<p>与不带<code>svm</code>的分类器相比，使用<code>svm</code>来分类的速度只和<code>svm</code>模型自己的大小相关。然而<code>svm</code>只会预测出<code>fit()</code>过的类，这导致两个问题需要解决：</p>
+<ol>
+<li><p>就算你随机输入一个128维的向量，分类器也会给出一个数据库中存在的<code>label</code>。所以在<code>svm</code>分类器预测之后，我们需要额外地计算目标嵌入向量与分类器所给的类别中的向量之间的距离。但是相比于计算整个数据库中的向量，已经是很快了。</p>
+</li>
+<li><p>当有新的人(<code>label</code>)加入，我们需要重新<code>fit</code>分类器<code>svm</code>。</p>
+</li>
+</ol>
+<h4 id="2-预测更准-微调-fine-tune"><a href="#2-预测更准-微调-fine-tune" class="headerlink" title="2) 预测更准,微调(fine-tune)"></a>2) 预测更准,微调(fine-tune)</h4><p>由于神经网络模型的权重是由<code>LFW</code>数据集训练的，对亚洲人的区分，没有对西方人的那么好。如果对预测效果有更好的要求，可以在其基础上进行微调。</p>
+<p>网上也有人分享自己训练过的FaceNet的权重，大家自己去搜，我就不放出来了，因为我也没用过。</p>
+<h1 id="四，一些坑"><a href="#四，一些坑" class="headerlink" title="四，一些坑"></a>四，一些坑</h1><ul>
+<li>flask多线程<br>在实现过程中，有一个问题一直困扰我，后来终于google到了<a target="_blank" rel="noopener" href="https://github.com/tensorflow/tensorflow/issues/28287">issue</a>。原来是因为<code>Flask</code>对<code>requests</code>进行回应时，会使用多线程的代码，然而，对于<code>Tensorflow（1.13）</code>，这样是不允许的。<br>所以，在<code>load_model()</code>和<code>model.predict()</code>之前都加了一些设置<code>graph</code>,<code>session</code>的代码。可以直接在代码里看到，这里不贴图了。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/flask/" rel="tag"># flask</a>
+              <a href="/tags/keras/" rel="tag"># keras</a>
+              <a href="/tags/face-recognition/" rel="tag"># face-recognition</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/05/Anaconda-%E5%AE%89%E8%A3%85R%E5%B9%B6%E9%85%8D%E7%BD%AEBioconductor/" rel="prev" title="Anaconda 安装R并配置Bioconductor">
+      <i class="fa fa-chevron-left"></i> Anaconda 安装R并配置Bioconductor
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%EF%BC%8C%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">一，背景知识</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%EF%BC%8C%E4%BB%A3%E7%A0%81%E8%A7%A3%E9%87%8A"><span class="nav-number">2.</span> <span class="nav-text">二，代码解释</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%EF%BC%89-%E4%B8%BB%E8%A6%81%E7%9A%84%E9%80%BB%E8%BE%91%E4%BB%A3%E7%A0%81"><span class="nav-number">2.0.0.1.</span> <span class="nav-text">1） 主要的逻辑代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%EF%BC%89%E9%98%88%E5%80%BC"><span class="nav-number">2.0.0.2.</span> <span class="nav-text">2）阈值</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%EF%BC%8C%E6%89%A9%E5%B1%95"><span class="nav-number">3.</span> <span class="nav-text">三，扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E9%80%9F%E5%BA%A6%E6%9B%B4%E5%BF%AB%EF%BC%8Csvm"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">1)  速度更快，svm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%A2%84%E6%B5%8B%E6%9B%B4%E5%87%86-%E5%BE%AE%E8%B0%83-fine-tune"><span class="nav-number">3.0.0.2.</span> <span class="nav-text">2) 预测更准,微调(fine-tune)</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%EF%BC%8C%E4%B8%80%E4%BA%9B%E5%9D%91"><span class="nav-number">4.</span> <span class="nav-text">四，一些坑</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">jiaobendaye</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jiaobendaye</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

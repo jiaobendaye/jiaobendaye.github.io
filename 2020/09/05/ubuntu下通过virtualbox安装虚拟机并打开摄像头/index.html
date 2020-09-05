@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本人的host系统为ubuntu18.04,如果你的是windows，可能不适用本教程  1. 安装virtualbox以及增强包 建议去官网下载最新的版本,注意：如果要实现屏幕自适应窗口和粘贴板共享需要下载VM增强包和guest　addition(后者要等到后面下载) 增强包要下载版本对应的才行，双击即可安装 安装完virtualbox和增强包后，需要把当前用户加到　vboxusers组里面，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ubuntu下通过virtualbox安装虚拟机并打开摄像头">
+<meta property="og:url" content="http://example.com/2020/09/05/ubuntu%E4%B8%8B%E9%80%9A%E8%BF%87virtualbox%E5%AE%89%E8%A3%85%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%B9%B6%E6%89%93%E5%BC%80%E6%91%84%E5%83%8F%E5%A4%B4/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="本人的host系统为ubuntu18.04,如果你的是windows，可能不适用本教程  1. 安装virtualbox以及增强包 建议去官网下载最新的版本,注意：如果要实现屏幕自适应窗口和粘贴板共享需要下载VM增强包和guest　addition(后者要等到后面下载) 增强包要下载版本对应的才行，双击即可安装 安装完virtualbox和增强包后，需要把当前用户加到　vboxusers组里面，">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-05T01:49:17.000Z">
+<meta property="article:modified_time" content="2020-09-05T08:12:41.395Z">
+<meta property="article:author" content="jiaobendaye">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="virtualbox">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2020/09/05/ubuntu%E4%B8%8B%E9%80%9A%E8%BF%87virtualbox%E5%AE%89%E8%A3%85%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%B9%B6%E6%89%93%E5%BC%80%E6%91%84%E5%83%8F%E5%A4%B4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ubuntu下通过virtualbox安装虚拟机并打开摄像头 | 我的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">我的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/09/05/ubuntu%E4%B8%8B%E9%80%9A%E8%BF%87virtualbox%E5%AE%89%E8%A3%85%E8%99%9A%E6%8B%9F%E6%9C%BA%E5%B9%B6%E6%89%93%E5%BC%80%E6%91%84%E5%83%8F%E5%A4%B4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="jiaobendaye">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ubuntu下通过virtualbox安装虚拟机并打开摄像头
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-05 09:49:17 / 修改时间：16:12:41" itemprop="dateCreated datePublished" datetime="2020-09-05T09:49:17+08:00">2020-09-05</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>本人的host系统为ubuntu18.04,如果你的是windows，可能不适用本教程</p>
+</blockquote>
+<h2 id="1-安装virtualbox以及增强包"><a href="#1-安装virtualbox以及增强包" class="headerlink" title="1. 安装virtualbox以及增强包"></a>1. 安装virtualbox以及增强包</h2><ul>
+<li>建议去<a target="_blank" rel="noopener" href="https://www.virtualbox.org/wiki/Downloads">官网</a>下载最新的版本,<br>注意：如果要实现屏幕自适应窗口和粘贴板共享需要下载VM增强包和guest　addition(后者要等到后面下载)</li>
+<li>增强包要下载版本对应的才行，双击即可安装</li>
+<li>安装完virtualbox和增强包后，需要把当前用户加到　<code>vboxusers</code>组里面，否则的话摄像头无法识别为usb设备，会出错<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo usermod -a -G vboxusers $(whoami)</span><br></pre></td></tr></table></figure>
+添加后，需要<code>reboot</code>或者<code>log out</code></li>
+</ul>
+<hr>
+<h2 id="２-下载镜像并配置虚拟机"><a href="#２-下载镜像并配置虚拟机" class="headerlink" title="２. 下载镜像并配置虚拟机"></a>２. 下载镜像并配置虚拟机</h2><ul>
+<li><p>下载镜像没有什么好讲的</p>
+</li>
+<li><p>安装虚拟机时，需要注意usb的版本，老式的摄像头是usb2.0，而现在的有很大可能是usb3.0．版本必须选对</p>
+</li>
+<li><p>当虚拟机安装好之后，就要安装guest additon了，这样才能打通host与guest之间的联系．<br>＊　在<code>devices</code> 下选择　<code>insert guest additon cd image</code><br>＊　如果本地没有，会弹出确认下载的窗口，放心下载就行了<br>＊　下载好后，再次<code>insert guest additon cd image</code>，guest里会弹出请求执行安装的窗口，安装好之后，guest的屏幕就可调节了</p>
+</li>
+</ul>
+<hr>
+<h2 id="３-Guest-打开摄像头"><a href="#３-Guest-打开摄像头" class="headerlink" title="３. Guest 打开摄像头"></a>３. Guest 打开摄像头</h2><ul>
+<li><p>如果前面的步骤都没错的话，会在<code>devices --&gt; usb </code>下面看到摄像头的信息，在前面打勾就能把摄像头的使用权送给guest了</p>
+</li>
+<li><p>假如摄像头在<code>devices --&gt; webcams</code>,说明没有把当前用户加到<code>vboxusers</code>里面，是无法使用的</p>
+</li>
+<li><p>ubuntu 通过cheese可以打开摄像头</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/linux/" rel="tag"># linux</a>
+              <a href="/tags/virtualbox/" rel="tag"># virtualbox</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/05/linux%E4%B8%8B%E6%90%AD%E5%BB%BAv2ray%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%92%8C%E5%AE%A2%E6%88%B7%E7%AB%AF/" rel="prev" title="linux下搭建v2ray服务端和客户端">
+      <i class="fa fa-chevron-left"></i> linux下搭建v2ray服务端和客户端
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/05/c-c-%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B/" rel="next" title="c/c++ 编译流程">
+      c/c++ 编译流程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85virtualbox%E4%BB%A5%E5%8F%8A%E5%A2%9E%E5%BC%BA%E5%8C%85"><span class="nav-number">1.</span> <span class="nav-text">1. 安装virtualbox以及增强包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%92-%E4%B8%8B%E8%BD%BD%E9%95%9C%E5%83%8F%E5%B9%B6%E9%85%8D%E7%BD%AE%E8%99%9A%E6%8B%9F%E6%9C%BA"><span class="nav-number">2.</span> <span class="nav-text">２. 下载镜像并配置虚拟机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%93-Guest-%E6%89%93%E5%BC%80%E6%91%84%E5%83%8F%E5%A4%B4"><span class="nav-number">3.</span> <span class="nav-text">３. Guest 打开摄像头</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">jiaobendaye</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">jiaobendaye</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
