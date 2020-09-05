@@ -757,7 +757,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-05 09:50:24 / 修改时间：16:12:41" itemprop="dateCreated datePublished" datetime="2020-09-05T09:50:24+08:00">2020-09-05</time>
+              <time title="创建时间：2020-09-05 09:50:24 / 修改时间：17:05:46" itemprop="dateCreated datePublished" datetime="2020-09-05T09:50:24+08:00">2020-09-05</time>
             </span>
 
           
@@ -822,9 +822,9 @@
 
 <p>参考文献<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/6264249/how-does-the-compilation-linking-process-work">How does the compilation/linking process work?</a></p>
 <hr>
-<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>###一，静态与动态链接库<br>在链接阶段，编译器把二进制文件中的变量和函数都看作<code>symbol</code>，然后就像搭积木一样，按照<code>symbol</code>把<code>.o</code>、<code>.a</code>和<code>.so</code>拼接起来。如果在这些文件中，定义和实现未能对应，则链接失败。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="一，静态与动态链接库"><a href="#一，静态与动态链接库" class="headerlink" title="一，静态与动态链接库"></a>一，静态与动态链接库</h3><p>在链接阶段，编译器把二进制文件中的变量和函数都看作<code>symbol</code>，然后就像搭积木一样，按照<code>symbol</code>把<code>.o</code>、<code>.a</code>和<code>.so</code>拼接起来。如果在这些文件中，定义和实现未能对应，则链接失败。</p>
 <p>不同的是，静态链接库是直接包含在可执行文件中，而动态链接库是在运行时才会调用。因此，静态链接会使可执行文件明显变大，而动态链接则不会。另外，当系统环境发生改变时，需要保证动态链接库始终能被访问到。</p>
-<p>###二，汇编注释（反汇编）<br><code>.o</code>文件可以用来反汇编，将机器可读的二进制文件转为人类可读的汇编文件。</p>
+<h3 id="二，汇编注释（反汇编）"><a href="#二，汇编注释（反汇编）" class="headerlink" title="二，汇编注释（反汇编）"></a>二，汇编注释（反汇编）</h3><p><code>.o</code>文件可以用来反汇编，将机器可读的二进制文件转为人类可读的汇编文件。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d -M intel -S test.o &gt; test.ss</span><br></pre></td></tr></table></figure>
 <p><code>test.ss</code>文件包含了汇编代码以及对应的<code>c/c++</code>语句注释。</p>
 
@@ -1190,5 +1190,5 @@
 
   
 
-</body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
 </html>
