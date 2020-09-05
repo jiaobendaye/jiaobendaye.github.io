@@ -28,7 +28,7 @@
 <meta property="og:description" content="之前在公司用的Mac，触摸板的多指操作给我留下了很深的印象．但是自己主要开发还是在Linux下，所以折腾了一下，使得自己的笔记本的触摸板更加人性化（也就是仿Mac）  教程目标：通过触摸板实现显示当前工作区(workspace)窗口以及切换工作区操作  1. 检查触摸板首先你的触摸板需要支持多指操作，大部分都是支持的，可以通过如下方式测试:ubuntu默认的三指点击，模拟的鼠标滚轮的点击(midd">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-09-05T01:56:14.000Z">
-<meta property="article:modified_time" content="2020-09-05T08:12:41.395Z">
+<meta property="article:modified_time" content="2020-09-05T10:10:52.978Z">
 <meta property="article:author" content="jiaobendaye">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary">
@@ -175,7 +175,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-05 09:56:14 / 修改时间：16:12:41" itemprop="dateCreated datePublished" datetime="2020-09-05T09:56:14+08:00">2020-09-05</time>
+              <time title="创建时间：2020-09-05 09:56:14 / 修改时间：18:10:52" itemprop="dateCreated datePublished" datetime="2020-09-05T09:56:14+08:00">2020-09-05</time>
             </span>
 
           
@@ -201,7 +201,7 @@
 <h3 id="3-禁止三指点击模拟middle-click"><a href="#3-禁止三指点击模拟middle-click" class="headerlink" title="3. 禁止三指点击模拟middle-click"></a>3. 禁止三指点击模拟middle-click</h3><p>上面已经提到，ubuntu默认会把三指点击对应成<code>middle-click</code>，并进行粘贴操作．当你在浏览文本时，想要通过三指切换工作区，系统很有可能会先执行一遍粘贴操作，把粘贴板的内容粘贴进去，(简直太坑爹了)．下面来介绍如何禁止这一操作．</p>
 <p>参考文章<a target="_blank" rel="noopener" href="https://ubuntuqa.com/article/687.html">如何禁用鼠标中键点击粘贴？</a></p>
 <p>我尝试了<code>tweak</code>，<code>easystroke</code>均未成功，或效果不好，最后还是通过<code>~/.Xmodmap</code>文件解决了这个问题</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;pointer &#x3D; 1 25 3 4 5 6 7 8 9&quot;  &gt;  ~&#x2F;.Xmodmap</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;pointer = 1 25 3 4 5 6 7 8 9&quot;</span>  &gt;  ~/.Xmodmap</span><br></pre></td></tr></table></figure>
 <p>重启之后，三指点击应该就不会触发粘贴操作了，可以舒舒服服地体验三指切换工作区的快感了．</p>
 <h3 id="4-一些BUG"><a href="#4-一些BUG" class="headerlink" title="4.一些BUG"></a>4.一些BUG</h3><p>使用过程中，有时候会遇到<code>fusuma</code>停止工作的现象，在看了github的issue后发现，是<code>fusuma</code>无法正确识别出三指和二指的问题．<br>可以用四根手指轻扫触摸板，多扫几次，<code>fusuma</code>就能正常识别三指了，这是个人的使用经验，不一定对所有人适用．</p>
 

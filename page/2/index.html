@@ -345,7 +345,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-05 09:42:26 / 修改时间：16:12:41" itemprop="dateCreated datePublished" datetime="2020-09-05T09:42:26+08:00">2020-09-05</time>
+              <time title="创建时间：2020-09-05 09:42:26 / 修改时间：18:10:37" itemprop="dateCreated datePublished" datetime="2020-09-05T09:42:26+08:00">2020-09-05</time>
             </span>
 
           
@@ -365,7 +365,7 @@
 <blockquote>
 <h1 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h1><p>具体原因是因为tensorflow默认会把显存一次性占完，导致后面用卷积层时无法初始化cuDNN，所以，我们只要把tf设置为按需申请显存就行了．</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">from tensorflow.compat.v1 import ConfigProto</span><br><span class="line">from tensorflow.compat.v1 import InteractiveSession</span><br><span class="line">config &#x3D; ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth &#x3D; True</span><br><span class="line">session &#x3D; InteractiveSession(config&#x3D;config)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> tensorflow.compat.v1 <span class="keyword">import</span> ConfigProto</span><br><span class="line"><span class="keyword">from</span> tensorflow.compat.v1 <span class="keyword">import</span> InteractiveSession</span><br><span class="line">config = ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth = <span class="literal">True</span></span><br><span class="line">session = InteractiveSession(config=config)</span><br></pre></td></tr></table></figure>
 
 
 
@@ -580,7 +580,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-05 16:12:41" itemprop="dateModified" datetime="2020-09-05T16:12:41+08:00">2020-09-05</time>
+                <time title="修改时间：2020-09-05 18:12:30" itemprop="dateModified" datetime="2020-09-05T18:12:30+08:00">2020-09-05</time>
               </span>
 
           

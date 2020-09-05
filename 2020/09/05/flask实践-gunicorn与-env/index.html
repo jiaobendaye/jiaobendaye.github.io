@@ -28,7 +28,7 @@
 <meta property="og:description" content=".env生产环境下，.env通常用来保存私密的信息（如密钥等），在.gitignore中添加.env，使得其不会上传到公共仓库中，以保护私密信息。 123# filename: .envTEST_AK &#x3D; blablaTEST_SK &#x3D; blabla  flask 默认会通过.env，（前提是需要安装python-dotenv）并将其加载到环境变量中，在程序中通过os.gete">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-09-05T01:57:17.000Z">
-<meta property="article:modified_time" content="2020-09-05T08:12:41.395Z">
+<meta property="article:modified_time" content="2020-09-05T10:12:10.374Z">
 <meta property="article:author" content="jiaobendaye">
 <meta property="article:tag" content="flask">
 <meta property="article:tag" content="gunicorn">
@@ -176,7 +176,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-05 09:57:17 / 修改时间：16:12:41" itemprop="dateCreated datePublished" datetime="2020-09-05T09:57:17+08:00">2020-09-05</time>
+              <time title="创建时间：2020-09-05 09:57:17 / 修改时间：18:12:10" itemprop="dateCreated datePublished" datetime="2020-09-05T09:57:17+08:00">2020-09-05</time>
             </span>
 
           
@@ -197,7 +197,7 @@
 <h2 id="gunicorn"><a href="#gunicorn" class="headerlink" title="gunicorn"></a>gunicorn</h2><p>由于flask默认的wsgi处理高并发还是鲁棒性都有所欠缺，我们通常会使用gunicorn，uWSGI等WSGI容器 来部署flask项目</p>
 <p>我们可以通过<code>gunicorn -c path_to_gunicorn_conf path_to_app:app</code>来使得gunicorn代替flask默认的wsgi。</p>
 <p>但这时，flask就不会自动导入<code>.env</code>到环境变量了，需要手动的去导入。<br>解决方案：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#filename: app.py</span><br><span class="line">from dotenv import load_dotenv</span><br><span class="line">#.env 与app.py 在同一路径下</span><br><span class="line">load_dotenv(&#39;.env&#39;)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#filename: app.py</span></span><br><span class="line"><span class="keyword">from</span> dotenv <span class="keyword">import</span> load_dotenv</span><br><span class="line"><span class="comment">#.env 与app.py 在同一路径下</span></span><br><span class="line">load_dotenv(<span class="string">&#x27;.env&#x27;</span>)</span><br></pre></td></tr></table></figure>
 
     </div>
 
