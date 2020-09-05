@@ -170,7 +170,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-05 09:59:05 / 修改时间：16:12:41" itemprop="dateCreated datePublished" datetime="2020-09-05T09:59:05+08:00">2020-09-05</time>
+              <time title="创建时间：2020-09-05 09:59:05 / 修改时间：17:11:54" itemprop="dateCreated datePublished" datetime="2020-09-05T09:59:05+08:00">2020-09-05</time>
             </span>
 
           
@@ -672,7 +672,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-05 09:52:13 / 修改时间：16:12:41" itemprop="dateCreated datePublished" datetime="2020-09-05T09:52:13+08:00">2020-09-05</time>
+              <time title="创建时间：2020-09-05 09:52:13 / 修改时间：17:13:56" itemprop="dateCreated datePublished" datetime="2020-09-05T09:52:13+08:00">2020-09-05</time>
             </span>
 
           
@@ -692,8 +692,7 @@
 <li>动态内存</li>
 <li>浅拷贝和深拷贝</li>
 </ul>
-<h2 id="三，参考写法"><a href="#三，参考写法" class="headerlink" title="三，参考写法"></a>三，参考写法</h2><p>###3.1 拷贝构造，copy constructor function</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">String::String(<span class="keyword">const</span> String&amp;  other)&#123;</span><br><span class="line">    m_pchar = <span class="keyword">new</span> <span class="keyword">char</span>[other.size +<span class="number">1</span>];</span><br><span class="line">    <span class="built_in">strcpy</span>(m_pchar, other.m_pchar);</span><br><span class="line">    m_size = other.m_size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="三，参考写法"><a href="#三，参考写法" class="headerlink" title="三，参考写法"></a>三，参考写法</h2><h3 id="3-1-拷贝构造，copy-constructor-function"><a href="#3-1-拷贝构造，copy-constructor-function" class="headerlink" title="3.1 拷贝构造，copy constructor function"></a>3.1 拷贝构造，copy constructor function</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">String::String(<span class="keyword">const</span> String&amp;  other)&#123;</span><br><span class="line">    m_pchar = <span class="keyword">new</span> <span class="keyword">char</span>[other.size +<span class="number">1</span>];</span><br><span class="line">    <span class="built_in">strcpy</span>(m_pchar, other.m_pchar);</span><br><span class="line">    m_size = other.m_size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="3-2-拷贝赋值，copy-assignment-function"><a href="#3-2-拷贝赋值，copy-assignment-function" class="headerlink" title="3.2 拷贝赋值，copy assignment function"></a>3.2 拷贝赋值，copy assignment function</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> String&amp; String::oparator =(<span class="keyword">const</span> String&amp; other)&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span> == &amp;other) <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">char</span> *p = <span class="keyword">new</span> <span class="keyword">char</span>[other.m_size+<span class="number">1</span>];</span><br><span class="line">    <span class="built_in">strcpy</span>(p, other.m_pchar);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(m_pchar) <span class="keyword">delete</span>[] m_pchar;</span><br><span class="line">    </span><br><span class="line">    m_pchar = p;</span><br><span class="line">    m_size = other.m_size;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
